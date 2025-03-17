@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring Hidroponik</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            width: 320px;
+            text-align: center;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background: #28a745;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background: #218838;
+        }
+
+        p {
+            margin-top: 10px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Monitoring Hidroponik</h2>
+        
+        <!-- Input Suhu -->
+        <label for="suhu">Suhu (°C):</label>
+        <input type="number" id="suhu" placeholder="Masukkan suhu saat ini" min="0" required>
+        
+        <!-- Target Rentang Suhu -->
+        <label for="suhuMin">Target Suhu Min (°C):</label>
+        <input type="number" id="suhuMin" placeholder="Min" min="0" required>
+        <label for="suhuMax">Target Suhu Max (°C):</label>
+        <input type="number" id="suhuMax" placeholder="Max" min="0" required>
+
+        <!-- Input pH -->
+        <label for="ph">pH:</label>
+        <input type="number" id="ph" placeholder="Masukkan pH saat ini" step="0.1" min="0" max="14" required>
+        
+        <!-- Target Rentang pH -->
+        <label for="phMin">Target pH Min:</label>
+        <input type="number" id="phMin" placeholder="Min" step="0.1" min="0" max="14" required>
+        <label for="phMax">Target pH Max:</label>
+        <input type="number" id="phMax" placeholder="Max" step="0.1" min="0" max="14" required>
+        
+        <button onclick="kirimData()">Kirim</button>
+        <p id="status"></p>
+    </div>
+
+    <script>
+        async function kirimData() {
+            const suhu = document.getElementById("suhu").value;
+            const suhuMin = document.getElementById("suhuMin").value;
+            const suhuMax = document.getElementById("suhuMax").value;
+            const ph = document.getElementById("ph").value;
+            const phMin = document.getElementById("phMin").value;
+            const phMax = document.getElementById("phMax").value;
+            const statusText = document.getElementById("status");
+
+            // Validasi input agar tidak kosong atau negatif
+            if (!suhu || !suhuMin || !suhuMax || !ph || !phMin || !phMax) {
+                statusText.innerText = "Harap isi semua data!";
+                statusText.style.color = "red";
+                return;
+            }
+
+            const data = {
+                suhu: parseFloat(suhu),
+                suhuMin: parseFloat(suhuMin),
+                suhuMax: parseFloat(suhuMax),
+                ph: parseFloat(ph),
+                phMin: parseFloat(phMin),
+                phMax: parseFloat(phMax)
+            };
+
+            try {
+                const response = await fetch(https://ai.bengkelagung.my.id/webhook/e9589460-a38e-4216-99cb-722205f57bef", {
+                    method: "POST",
+                    mode: "cors", // Menambahkan mode CORS
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+
+                let result;
+                try {
+                    result = await response.json();
+                } catch (jsonError) {
+                    result = { output: "Data dikirim, tetapi respons kosong atau tidak valid." };
+                }
+
+                if (response.ok) {
+                    statusText.innerText = result.output || "Data berhasil dikirim!";
+                    statusText.style.color = "green";
+                } else {
+                    statusText.innerText = "Gagal mengirim data! Periksa webhook.";
+                    statusText.style.color = "red";
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                statusText.innerText = "Terjadi kesalahan saat mengirim data!";
+                statusText.style.color = "red";
+            }
+        }
+    </script>
+
+</body>
+</html>
